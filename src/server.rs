@@ -1,5 +1,6 @@
 use crate::{snippets::Snippet, BackendRequest, BackendResponse, BackendState};
 use std::collections::HashMap;
+use serde_json::Value;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::sync::{mpsc, oneshot};
 use tower_lsp::jsonrpc::Result;
@@ -31,9 +32,23 @@ impl Backend {
     }
 }
 
+fn is_empty_object(value: &Value) -> bool {
+    match value {
+        Value::Object(obj) => obj.is_empty(),
+        _ => false,
+    }
+}
+
 #[tower_lsp::async_trait]
 impl LanguageServer for Backend {
-    async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
+    async fn initialize(&self, cx: InitializeParams) -> Result<InitializeResult> {
+
+        if let Some(options) = cx.initialization_options {
+            // tracing::info!("cx value is {:?}", options);
+            let params = DidChangeConfigurationParams { settings: options };
+            let _ = self.send_request(BackendRequest::ChangeConfiguration(params)).await;
+        }
+
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
                 position_encoding: Some(PositionEncodingKind::UTF32),
@@ -47,6 +62,10 @@ impl LanguageServer for Backend {
                 }),
                 ..Default::default()
             },
+            server_info: Some(ServerInfo {
+                name: "scls".to_string(),
+                version: Some("0.1.0".to_string())
+            }),
             ..Default::default()
         })
     }
@@ -78,9 +97,10 @@ impl LanguageServer for Backend {
     async fn did_change_configuration(&self, params: DidChangeConfigurationParams) {
         self.log_info(&format!("Did change configuration: {params:?}"))
             .await;
-        let _ = self
-            .send_request(BackendRequest::ChangeConfiguration(params))
-            .await;
+        // I don't want to merge
+        if !is_empty_object(&params.settings) {
+            let _ = self.send_request(BackendRequest::ChangeConfiguration(params));
+        }
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {

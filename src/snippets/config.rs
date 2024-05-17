@@ -48,7 +48,6 @@ pub fn load_snippets(start_options: &StartOptions) -> Result<Vec<Snippet>> {
             .map_err(|e| anyhow::anyhow!(e))?;
 
         for source in sources {
-            let source_name = source.name.as_ref().unwrap_or(&source.git);
 
             for item in &source.paths {
                 snippets.extend(
@@ -57,13 +56,6 @@ pub fn load_snippets(start_options: &StartOptions) -> Result<Vec<Snippet>> {
                         &item.scope,
                     )?
                     .into_iter()
-                    .map(|mut s| {
-                        s.description = Some(format!(
-                            "{source_name}\n\n{}",
-                            s.description.unwrap_or_default(),
-                        ));
-                        s
-                    })
                     .collect::<Vec<_>>(),
                 );
             }

@@ -1,152 +1,66 @@
-<div align="center">
-  <p><h1>simple-completion-language-server</h1> </p>
-  <p><strong>Allow to use common word completion and snippets for <a href="https://helix-editor.com/">Helix editor</a></strong></p>
-  <p></p>
-</div>
+# scls
+
+Fork by https://github.com/estin/simple-completion-language-server
+
+具体改动请参考 https://github.com/d1y/scls/pull/6 该 PR
 
 
-https://github.com/estin/simple-completion-language-server/assets/520814/10566ad4-d6d1-475b-8561-2e909be0f875
+| 路径提示      | 代码片段 |
+| ----------- | ----------- |
+| <img width="645" alt="image" src="https://github.com/d1y/scls/assets/45585937/a7c3211f-7fa8-4eac-9fe8-23d4943b25e3">      | <img width="780" alt="image" src="https://github.com/d1y/scls/assets/45585937/e02bc64f-4922-40c3-b040-fd643e871786">      |
 
-Based on [comment](https://github.com/helix-editor/helix/pull/3328#issuecomment-1559031060)
+### Install
 
-### Install (from source only)
+TODO: 支持 `brew install`
 
 From GitHub:
 
 ```console
-$ cargo install --git https://github.com/estin/simple-completion-language-server.git
+$ cargo install --git https://github.com/d1y/scls
 ```
 
 From local repository:
 
 ```console
-$ git clone https://github.com/estin/simple-completion-language-server.git
-$ cd simple-completion-language-server
+$ git clone https://github.com/d1y/scls
+$ cd scls
 $ cargo install --path .
 ```
 
 ### Configure
 
-For Helix on `~/.config/helix/languages.toml`
+zed-editor:
 
-```toml
-# introduce new language server
-[language-server.scls]
-command = "simple-completion-language-server"
-
-[language-server.scls.config]
-max_completion_items = 20     # set max completion results len for each group: words, snippets, unicode-input
-snippets_first = true         # completions will return before snippets by default
-feature_words = true          # enable completion by word
-feature_snippets = true       # enable snippets
-feature_unicode_input = true  # enable "unicode input"
-feature_paths = true          # enable path completion
-
-
-# write logs to /tmp/completion.log
-[language-server.scls.environment]
-RUST_LOG = "info,simple-completion-langauge-server=info"
-LOG_FILE = "/tmp/completion.log"
-
-# append langage server to existed languages
-[[language]]
-name = "rust"
-language-servers = [ "scls", "rust-analyzer" ]
-
-[[language]]
-name = "git-commit"
-language-servers = [ "scls" ]
-
-# etc..
-
-# introduce a new language to enable completion on any doc by forcing set language with :set-language stub
-[[language]]
-name = "stub"
-scope = "text.stub"
-file-types = []
-shebangs = []
-roots = []
-auto-format = false
-language-servers = [ "scls" ]
+```jsonc
+"lsp": {
+  "scls": {
+    "initialization_options": {
+      "max_completion_items": 6, // set max completion results len for each group: words, snippets, unicode-input
+      "feature_words": false, // enable completion by word
+      "feature_unicode_input": false, // enable "unicode input"
+      "snippets_first": true, // completions will return before snippets by default
+      "feature_snippets": true, // enable snippets
+      "feature_paths": true // enable path completion
+    }
+  }
+}
 ```
 
 ### Snippets
 
-Read snippets from dir `~/.config/helix/snippets` or specify snippets path via `SNIPPETS_PATH` env.
-
-Currently, it supports our own `toml` format and vscode `json` (a basic effort).
-
-Filename used as snippet scope (language), filename `snippets.(toml|json)` will not attach scope to snippets.
-
-For example, snippets with the filename `python.toml` or `python.json` would have a `python` scope.
-
-Snippets format
+代码片段目录在 `~/.scls/snippets`, 示例(`~/.scls/snippets/go.toml`):
 
 ```toml
 [[snippets]]
-prefix = "ld"
-scope = [ "python" ]
-body = 'log.debug("$1")'
+prefix = "err"
+scope = [ "go" ]
+body = "if err := $1; err != nil {\n\t$2\t\n}"
 ```
 
-### Use external snippets collections from git repos
+可以使用
 
-Configure sources in `~/.config/helix/external-snippets.toml` (or via env `EXTERNAL_SNIPPETS_CONFIG`)
-
-```toml
-[[sources]] # list of sources to load
-name = "friendly-snippets"  # optional name shown on snippet description
-git = "https://github.com/rafamadriz/friendly-snippets.git" # git repo with snippets collections
-
-[[sources.paths]] # list of paths to load on current source
-scope = ["python"]  # optional scopes for current snippets
-path = "snippets/python/python.json"  # where snippet file or dir located in repo
+```sh
+simple-completion-language-server fetch-snippets
 ```
 
-
-Clone or update snippets source repos to `~/.config/helix/external-snippets/<repo path>`
-
-```console
-$ simple-completion-language-server fetch-external-snippets
-```
-
-
-Validate snippets
-
-```console
-$ simple-completion-language-server validate-snippets
-```
-
-### Unicode input
-
-Read unicode input config as each file from dir `~/.config/helix/unicode-input` (or specify path via `UNICODE_INPUT_PATH` env).
-
-Unicode input format (toml key-value), for example `~/.config/helix/unicode-input/base.toml`
-
-```toml
-alpha = "α"
-betta = "β"
-gamma = "γ"
-fire = "🔥"
-```
-
-
-Validate unicode input config
-
-```console
-$ simple-completion-language-server validate-unicode-input
-```
-
-
-### Similar projects
-
-- [metafates/buffer-language-server](https://github.com/metafates/buffer-language-server)
-- [rajasegar/helix-snippets-ls](https://github.com/rajasegar/helix-snippets-ls)
-- [quantonganh/snippets-ls](https://github.com/quantonganh/snippets-ls)
-- [Stanislav-Lapata/snippets-ls](https://github.com/Stanislav-Lapata/snippets-ls)
-- ...(please add another useful links here)
-
-### Useful snippets collections
-
-- [rafamadriz/friendly-snippets](https://github.com/rafamadriz/friendly-snippets)
-- ...(please add another useful links here)
+命令来自动拉取 `https://github.com/rafamadriz/friendly-snippets` 仓库代码片段(它会自动生成配置文件)

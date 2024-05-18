@@ -1,5 +1,5 @@
 use etcetera::base_strategy::{choose_base_strategy, BaseStrategy};
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use xshell::{cmd, Shell};
 
@@ -25,7 +25,7 @@ async fn serve(start_options: &StartOptions) {
         tracing_subscriber::registry()
             .with(tracing_subscriber::EnvFilter::new(
                 std::env::var("RUST_LOG")
-                    .unwrap_or_else(|_| "info,simple-comletion-language-server=info".into()),
+                    .unwrap_or_else(|_| "info,simple-completion-language-server=info".into()),
             ))
             .with(tracing_subscriber::fmt::layer().with_writer(non_blocking))
             .init();
@@ -61,6 +61,8 @@ async fn serve(start_options: &StartOptions) {
 fn help() {
     println!(
         "usage:
+simple-completion-language-server fetch-snippets
+    Fetch snippets and automatically generate configuration files
 simple-completion-language-server feth-external-snippets
     Fetch external snippets (git clone or git pull).
 simple-completion-language-server validate-snippets
@@ -68,6 +70,13 @@ simple-completion-language-server validate-snippets
 simple-completion-language-server
     Start language server protocol on stdin+stdout."
     );
+}
+
+fn fetch_snippets(node_script: &PathBuf) -> anyhow::Result<()> {
+    let sh = Shell::new()?;
+    tracing::info!("Try fetch snippets");
+    cmd!(sh, "node {node_script}").run()?;
+    return Ok(());
 }
 
 fn fetch_external_snippets(start_options: &StartOptions) -> anyhow::Result<()> {
@@ -79,6 +88,7 @@ fn fetch_external_snippets(start_options: &StartOptions) -> anyhow::Result<()> {
     let path = std::path::Path::new(&start_options.external_snippets_config_path);
 
     if !path.exists() {
+        tracing::error!("Config file not found");
         return Ok(());
     }
 
@@ -130,9 +140,15 @@ fn validate_unicode_input(start_options: &StartOptions) -> anyhow::Result<()> {
 async fn main() {
     let args: Vec<String> = std::env::args().collect();
 
+    let run_script = include_str!("../run.js");
+
     let strategy = choose_base_strategy().expect("Unable to find the config directory!");
-    let mut config_dir = strategy.config_dir();
-    config_dir.push("helix");
+    let config_dir = strategy.home_dir().join(".scls");
+    let node_script = config_dir.clone().join("run.js");
+    if !config_dir.exists() {
+        let _ = std::fs::create_dir_all(config_dir.clone());
+        let _ = std::fs::write(node_script.clone(), run_script);
+    }
 
     let start_options = StartOptions {
         home_dir: etcetera::home_dir()
@@ -168,7 +184,7 @@ async fn main() {
             tracing_subscriber::registry()
                 .with(tracing_subscriber::EnvFilter::new(
                     std::env::var("RUST_LOG")
-                        .unwrap_or_else(|_| "info,simple-comletion-language-server=info".into()),
+                        .unwrap_or_else(|_| "info,simple-completion-language-server=info".into()),
                 ))
                 .with(tracing_subscriber::fmt::layer())
                 .init();
@@ -181,6 +197,7 @@ async fn main() {
             }
 
             match cmd.as_str() {
+                "fetch-snippets" => fetch_snippets(&node_script).expect("Failed to fetch snippets"),
                 "fetch-external-snippets" => fetch_external_snippets(&start_options)
                     .expect("Failed to fetch external snippets"),
                 "validate-snippets" => {

@@ -44,7 +44,6 @@ impl LanguageServer for Backend {
     async fn initialize(&self, cx: InitializeParams) -> Result<InitializeResult> {
 
         if let Some(options) = cx.initialization_options {
-            // tracing::info!("cx value is {:?}", options);
             let params = DidChangeConfigurationParams { settings: options };
             let _ = self.send_request(BackendRequest::ChangeConfiguration(params)).await;
         }
@@ -97,7 +96,7 @@ impl LanguageServer for Backend {
     async fn did_change_configuration(&self, params: DidChangeConfigurationParams) {
         self.log_info(&format!("Did change configuration: {params:?}"))
             .await;
-        // I don't want to merge
+        // Not merge empty object
         if !is_empty_object(&params.settings) {
             let _ = self.send_request(BackendRequest::ChangeConfiguration(params));
         }

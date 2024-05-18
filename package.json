@@ -1,0 +1,16 @@
+{
+  "name": "simple-completion-language-server",
+  "version": "1.0.0",
+  "description": "simple-completion-language-server",
+  "main": "run.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.12.12"
+  }
+}

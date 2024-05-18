@@ -63,6 +63,16 @@ zed-editor:
 prefix = "err"
 scope = [ "go" ]
 body = "if err := $1; err != nil {\n\t$2\t\n}"
+
+[[snippets]]
+prefix = "td"
+scope = [ "javascript", "typescript", "go", "rust", "vue" ]
+body = "// TODO: impl this"
+
+[[snippets]]
+prefix = "fx"
+scope = [ "javascript", "typescript", "go", "rust", "vue" ]
+body = "// FIXME: $1"
 ```
 
 可以使用

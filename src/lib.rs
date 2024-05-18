@@ -20,7 +20,7 @@ pub struct StartOptions {
     pub unicode_input_path: std::path::PathBuf,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct BackendSettings {
     pub max_completion_items: usize,
     pub max_chars_prefix_len: usize,
@@ -32,7 +32,7 @@ pub struct BackendSettings {
     pub feature_paths: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct PartialBackendSettings {
     pub max_completion_items: Option<usize>,
     pub max_path_chars: Option<usize>,

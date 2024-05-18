@@ -4,6 +4,9 @@ Fork by https://github.com/estin/simple-completion-language-server
 
 具体改动请参考 https://github.com/d1y/scls/pull/6 该 PR
 
+zed 插件仓库: https://github.com/d1y/simple-completion-zed
+
+> 暂时可以用这个过渡一下, 还是等官方支持这些功能吧
 
 | 路径提示      | 代码片段 |
 | ----------- | ----------- |

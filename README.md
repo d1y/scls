@@ -11,7 +11,12 @@ Fork by https://github.com/estin/simple-completion-language-server
 
 ### Install
 
-TODO: 支持 `brew install`
+Homebrew:
+
+```sh
+brew tap d1ylab/homebrew-tap
+brew install scls
+```
 
 From GitHub:
 

@@ -81,4 +81,4 @@ body = "// FIXME: $1"
 simple-completion-language-server fetch-snippets
 ```
 
-命令来自动拉取 `https://github.com/rafamadriz/friendly-snippets` 仓库代码片段(它会自动生成配置文件)
+命令来调用 Nodejs 自动拉取 `https://github.com/rafamadriz/friendly-snippets` 仓库代码片段(它会自动生成配置文件)

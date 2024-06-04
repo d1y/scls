@@ -59,6 +59,12 @@ impl LanguageServer for Backend {
                     trigger_characters: Some(vec![std::path::MAIN_SEPARATOR_STR.to_string()]),
                     ..CompletionOptions::default()
                 }),
+                hover_provider: Some(HoverProviderCapability::Simple(false)),
+                definition_provider: Some(OneOf::Left(false)),
+                code_action_provider: Some(CodeActionProviderCapability::Simple(false)),
+                type_definition_provider: Some(TypeDefinitionProviderCapability::Simple(false)),
+                implementation_provider: Some(ImplementationProviderCapability::Simple(false)),
+                references_provider: Some(OneOf::Left(false)),
                 ..Default::default()
             },
             server_info: Some(ServerInfo {

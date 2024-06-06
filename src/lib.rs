@@ -443,7 +443,10 @@ impl BackendState {
                             value: format!("{description}\n```{}\n{}\n```",doc.language_id, s.body),
                         })
                     } else {
-                        Documentation::String(s.body.to_string())
+                        Documentation::MarkupContent(MarkupContent{
+                            kind: MarkupKind::Markdown,
+                            value: format!("```{}\n{}\n```",doc.language_id, s.body),
+                        })
                     }),
                     text_edit: Some(CompletionTextEdit::InsertAndReplace(InsertReplaceEdit {
                         replace: range,
